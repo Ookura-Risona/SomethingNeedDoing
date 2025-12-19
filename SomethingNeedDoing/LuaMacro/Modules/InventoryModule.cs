@@ -1,4 +1,5 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game;
+﻿using Dalamud.Game.Inventory;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
@@ -13,7 +14,9 @@ public unsafe class InventoryModule : LuaModuleBase
     protected override object? MetaIndex(LuaTable table, object key) => GetInventoryContainer(Enum.Parse<InventoryType>(key.ToString() ?? string.Empty));
 
     [LuaFunction] public InventoryContainerWrapper GetInventoryContainer(InventoryType container) => new(container);
-    [LuaFunction] public InventoryItemWrapper GetInventoryItem(InventoryType container, int slot) => new(container, slot);
+    [LuaFunction]
+    [Changelog("13.53", ChangelogType.Changed, "Renamed from GetInventoryItem to GetInventoryItemBySlot")]
+    public InventoryItemWrapper? GetInventoryItemBySlot(InventoryType container, int slot) => new(InventoryManager.Instance()->GetInventoryContainer(container)->GetInventorySlot(slot));
 
     [LuaFunction]
     [Changelog("12.9")]
@@ -167,6 +170,7 @@ public unsafe class InventoryModule : LuaModuleBase
         public InventoryItemWrapper(InventoryType container, int slot) => Item = InventoryManager.Instance()->GetInventoryContainer(container)->GetInventorySlot(slot);
         public InventoryItemWrapper(InventoryContainer* container, int slot) => Item = container->GetInventorySlot(slot);
         public InventoryItemWrapper(InventoryItem* item) => Item = item;
+        public InventoryItemWrapper(GameInventoryItem item) => Item = (InventoryItem*)item.Address;
         public InventoryItemWrapper(uint itemId)
         {
             foreach (var inv in playerInv)
@@ -185,10 +189,33 @@ public unsafe class InventoryModule : LuaModuleBase
         [LuaDocs] public ushort Condition => Item->Condition;
         [LuaDocs] public uint GlamourId => Item->GlamourId;
         [LuaDocs] public bool IsHighQuality => Item->IsHighQuality();
+        [LuaDocs][Changelog("13.53")] public bool IsCollectable => Item->IsCollectable();
+        [LuaDocs][Changelog("13.53")] public bool IsEmpty => Item->IsEmpty();
         [LuaDocs] public InventoryItemWrapper? LinkedItem => Item->GetLinkedItem() is not null ? new(Item->GetLinkedItem()) : null;
 
         [LuaDocs] public InventoryType Container => Item->Container;
         [LuaDocs] public int Slot => Item->Slot;
+
+        [LuaDocs]
+        [Changelog("13.55")]
+        public InventoryType ArmouryContainer => GetRow<Sheets.Item>(ItemId)?.EquipSlotCategory.Value switch
+        {
+            { MainHand: 1 } => InventoryType.ArmoryMainHand,
+            { OffHand: 1 } => InventoryType.ArmoryOffHand,
+            { Head: 1 } => InventoryType.ArmoryHead,
+            { Body: 1 } => InventoryType.ArmoryBody,
+            { Gloves: 1 } => InventoryType.ArmoryHands,
+            { Waist: 1 } => InventoryType.ArmoryWaist,
+            { Legs: 1 } => InventoryType.ArmoryLegs,
+            { Feet: 1 } => InventoryType.ArmoryFeets,
+            { Ears: 1 } => InventoryType.ArmoryEar,
+            { Neck: 1 } => InventoryType.ArmoryNeck,
+            { Wrists: 1 } => InventoryType.ArmoryWrist,
+            { FingerL: 1 } => InventoryType.ArmoryRings,
+            { FingerR: 1 } => InventoryType.ArmoryRings,
+            { SoulCrystal: 1 } => InventoryType.ArmorySoulCrystal,
+            _ => InventoryType.Invalid
+        };
 
         [LuaDocs] public void Use() => Game.UseItem(ItemId, IsHighQuality);
 
@@ -211,16 +238,71 @@ public unsafe class InventoryModule : LuaModuleBase
         [LuaDocs]
         [Changelog("12.51")]
         [Changelog("13.46", ChangelogType.Fixed, "Potential fix for fake movement")]
+        [Changelog("13.56", ChangelogType.Fixed, "Support for EquippedItems and RetainerEquippedItems containers")]
         public void MoveItemSlot(InventoryType destinationContainer)
-            => InventoryManager.Instance()->MoveItemSlot(Container, (ushort)Slot, destinationContainer, GetFirstEmptySlot(destinationContainer), true);
+            => InventoryManager.Instance()->MoveItemSlot(Container, (ushort)Slot, destinationContainer, GetFirstEmptySlot(destinationContainer, ArmouryContainer), true);
+
+        [LuaDocs]
+        [Changelog("13.58")]
+        public void LowerQuality() => AgentInventoryContext.Instance()->LowerItemQuality(Item, Container, Slot, 0);
+
+        [LuaDocs]
+        [Changelog("13.58")]
+        public void Discard() => InventoryManager.Instance()->DiscardItem(Container, (ushort)Slot);
+
+        [LuaDocs]
+        [Changelog("13.58")]
+        public void SplitItem(int quantity) => InventoryManager.Instance()->SplitItem(Container, (ushort)Slot, quantity);
     }
 
-    private static unsafe ushort GetFirstEmptySlot(InventoryType container)
+    private static unsafe ushort GetFirstEmptySlot(InventoryType container, InventoryType armouryContainer)
     {
-        var cont = InventoryManager.Instance()->GetInventoryContainer(container);
-        for (ushort i = 0; i < cont->Size; i++)
-            if (cont->Items[i].ItemId == 0)
-                return i;
-        return 0;
+        if (container is InventoryType.EquippedItems or InventoryType.RetainerEquippedItems)
+        {
+            return armouryContainer switch
+            {
+                InventoryType.ArmoryMainHand => EquippedSlot.MainHand,
+                InventoryType.ArmoryOffHand => EquippedSlot.OffHand,
+                InventoryType.ArmoryHead => EquippedSlot.Head,
+                InventoryType.ArmoryBody => EquippedSlot.Body,
+                InventoryType.ArmoryHands => EquippedSlot.Gloves,
+                InventoryType.ArmoryWaist => EquippedSlot.Belt,
+                InventoryType.ArmoryLegs => EquippedSlot.Legs,
+                InventoryType.ArmoryFeets => EquippedSlot.Feet,
+                InventoryType.ArmoryEar => EquippedSlot.Ear,
+                InventoryType.ArmoryNeck => EquippedSlot.Neck,
+                InventoryType.ArmoryWrist => EquippedSlot.Wrists,
+                InventoryType.ArmoryRings => EquippedSlot.FingerL,
+                InventoryType.ArmorySoulCrystal => EquippedSlot.SoulCrystal,
+                _ => throw new ArgumentOutOfRangeException(nameof(armouryContainer), "Invalid armoury container type"),
+            };
+        }
+        else
+        {
+            var cont = InventoryManager.Instance()->GetInventoryContainer(container);
+            for (ushort i = 0; i < cont->Size; i++)
+                if (cont->Items[i].ItemId == 0)
+                    return i;
+            return 0;
+        }
+    }
+
+    private static class EquippedSlot // imagine enums being useful
+    {
+        public const ushort
+            MainHand = 0,
+            OffHand = 1,
+            Head = 2,
+            Body = 3,
+            Gloves = 4,
+            Belt = 5,
+            Legs = 6,
+            Feet = 7,
+            Ear = 8,
+            Neck = 9,
+            Wrists = 10,
+            FingerL = 11,
+            FingerR = 12,
+            SoulCrystal = 13;
     }
 }
