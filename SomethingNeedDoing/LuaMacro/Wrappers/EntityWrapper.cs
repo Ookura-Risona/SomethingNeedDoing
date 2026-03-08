@@ -41,6 +41,7 @@ public unsafe class EntityWrapper : IWrapper
 
     [LuaDocs] public EntityWrapper? Target => DalamudObj?.TargetObject is { } target ? new(target) : null;
     [LuaDocs] public bool IsCasting => GetCharacterValue(() => Character->IsCasting);
+    [LuaDocs] public bool IsTargetable => _obj->GetIsTargetable();
     [LuaDocs] public bool IsCastInterruptible => GetCharacterValue(() => Character->GetCastInfo()->Interruptible);
     [LuaDocs] public bool IsInCombat => GetCharacterValue(() => Character->InCombat);
     [LuaDocs] public byte HuntRank => FindRow<NotoriousMonster>(x => x.BNpcBase.Value!.RowId == _obj->BaseId)?.Rank ?? 0;
