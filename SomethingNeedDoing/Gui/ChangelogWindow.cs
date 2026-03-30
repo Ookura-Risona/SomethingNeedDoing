@@ -83,6 +83,7 @@ public class ChangelogWindow : Window
         Add("13.51", "Fixed ipc enums not being registered");
         Add("13.59", "Added option to auto show status window on script start. Also fixed the carets not showing in the help menu for Axis fonts.");
         Add("14.02", "Added OnChatMessage metadata filters so it's actually usable. See the wiki for usage.");
+        Add("14.10", "Macro names display in error messages now");
     }
 
     private void Add(string version, string description)
