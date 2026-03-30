@@ -1,6 +1,7 @@
-﻿using Dalamud.Interface;
+using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using DalamudCodeEditor;
+using SomethingNeedDoing.Core;
 using SomethingNeedDoing.Core.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,7 +109,7 @@ public class CodeEditor : IDisposable
                                 if (configMacro.Metadata.TriggerEvents is { Count: > 0 } existingEvents)
                                     newMetadata.TriggerEvents = existingEvents;
 
-                                if (!MetadataEquals(configMacro.Metadata, newMetadata))
+                                if (!Equals(configMacro.Metadata, newMetadata))
                                 {
                                     configMacro.Metadata = newMetadata;
                                     C.Save();
@@ -137,45 +138,4 @@ public class CodeEditor : IDisposable
         Config.ConfigFileChanged -= RefreshContent;
     }
 
-    private static bool MetadataEquals(MacroMetadata m1, MacroMetadata m2)
-    {
-        if (m1 == null && m2 == null) return true;
-        if (m1 == null || m2 == null) return false;
-
-        return m1.Author == m2.Author &&
-               m1.Version == m2.Version &&
-               m1.Description == m2.Description &&
-               m1.CraftingLoop == m2.CraftingLoop &&
-               m1.CraftLoopCount == m2.CraftLoopCount &&
-               m1.TriggerEvents.SequenceEqual(m2.TriggerEvents) &&
-               m1.PluginDependecies.SequenceEqual(m2.PluginDependecies) &&
-               m1.PluginsToDisable.SequenceEqual(m2.PluginsToDisable) &&
-               ConfigsEqual(m1.Configs, m2.Configs);
-    }
-
-    private static bool ConfigsEqual(Dictionary<string, MacroConfigItem> c1, Dictionary<string, MacroConfigItem> c2)
-    {
-        if (c1.Count != c2.Count) return false;
-
-        foreach (var kvp in c1)
-        {
-            if (!c2.TryGetValue(kvp.Key, out var v2)) return false;
-
-            var v1 = kvp.Value;
-            if (v1.DefaultValue?.ToString() != v2.DefaultValue?.ToString() ||
-                v1.Description != v2.Description ||
-                v1.Type != v2.Type ||
-                v1.MinValue?.ToString() != v2.MinValue?.ToString() ||
-                v1.MaxValue?.ToString() != v2.MaxValue?.ToString() ||
-                v1.ValidationPattern != v2.ValidationPattern ||
-                v1.ValidationMessage != v2.ValidationMessage ||
-                v1.IsChoice != v2.IsChoice ||
-                !v1.Choices.SequenceEqual(v2.Choices))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

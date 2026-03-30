@@ -37,6 +37,9 @@ public class MacroScheduler : IMacroScheduler, IDisposable
     private readonly ConcurrentDictionary<string, DateTime> _lastStartAttempt = []; // throttle rapid start attempts
     private readonly ConcurrentDictionary<string, Task> _startingMacros = []; // track macros currently starting to prevent concurrent starts
     private readonly ConcurrentDictionary<string, (bool isValid, DateTime timestamp)> _cachedValidationResults = []; // cache plugin/config validation
+    private readonly ConcurrentDictionary<string, CancellationTokenSource> _triggerRefreshDebounceCts = [];
+
+    private const int TriggerRefreshDebounceMs = 500;
 
     private readonly NativeMacroEngine _nativeEngine;
     private readonly NLuaMacroEngine _luaEngine;
@@ -514,6 +517,27 @@ public class MacroScheduler : IMacroScheduler, IDisposable
     }
 
     /// <inheritdoc/>
+    public void RefreshTriggersFromContent(ConfigMacro macro, bool refreshFunctionTriggersIfRunning = true)
+    {
+        ArgumentNullException.ThrowIfNull(macro);
+
+        var oldTriggers = macro.Metadata.TriggerEvents.ToList();
+        foreach (var triggerEvent in oldTriggers)
+            UnsubscribeFromTriggerEvent(macro, triggerEvent);
+
+        _metadataParser.ParseMetadata(macro.Content, macro.Metadata);
+
+        foreach (var triggerEvent in macro.Metadata.TriggerEvents)
+            SubscribeToTriggerEvent(macro, triggerEvent);
+
+        if (refreshFunctionTriggersIfRunning && _macroStates.ContainsKey(macro.Id) && _macroStates.TryGetValue(macro.Id, out var state))
+        {
+            UnregisterFunctionTriggers(state.Macro);
+            RegisterFunctionTriggers(state.Macro);
+        }
+    }
+
+    /// <inheritdoc/>
     public void StopAllMacros() => _enginesByMacroId.Keys.Each(StopMacro);
 
     /// <inheritdoc/>
@@ -704,6 +728,49 @@ public class MacroScheduler : IMacroScheduler, IDisposable
     {
         FrameworkLogger.Verbose($"Macro content changed for {e.MacroId}, invalidating function cache");
         InvalidateFunctionCache(e.MacroId);
+
+        if (C.GetMacro(e.MacroId) is null)
+            return;
+
+        if (_triggerRefreshDebounceCts.TryGetValue(e.MacroId, out var oldCts))
+        {
+            oldCts.Cancel();
+            try
+            {
+                oldCts.Dispose();
+            }
+            catch { }
+        }
+
+        var cts = new CancellationTokenSource();
+        _triggerRefreshDebounceCts[e.MacroId] = cts;
+
+        var macroId = e.MacroId;
+        _ = Task.Delay(TriggerRefreshDebounceMs, cts.Token).ContinueWith(
+            t =>
+            {
+                if (!t.IsCompletedSuccessfully || cts.Token.IsCancellationRequested)
+                    return;
+
+                Svc.Framework.RunOnTick(() =>
+                {
+                    if (!_triggerRefreshDebounceCts.TryGetValue(macroId, out var current) || !ReferenceEquals(current, cts))
+                        return;
+
+                    _triggerRefreshDebounceCts.TryRemove(macroId, out _);
+                    try
+                    {
+                        cts.Dispose();
+                    }
+                    catch { }
+
+                    if (C.GetMacro(macroId) is ConfigMacro configMacro)
+                        RefreshTriggersFromContent(configMacro);
+                });
+            },
+            CancellationToken.None,
+            TaskContinuationOptions.None,
+            TaskScheduler.Default);
     }
 
     #region Triggers
@@ -1075,6 +1142,18 @@ public class MacroScheduler : IMacroScheduler, IDisposable
         _cachedValidationResults.Clear();
 
         C.Macros.ForEach(m => m.ContentChanged -= OnMacroContentChanged);
+
+        foreach (var (_, debounceCts) in _triggerRefreshDebounceCts)
+        {
+            debounceCts.Cancel();
+            try
+            {
+                debounceCts.Dispose();
+            }
+            catch { }
+        }
+
+        _triggerRefreshDebounceCts.Clear();
 
         Svc.Framework.Update -= OnFrameworkUpdate;
         Svc.Condition.ConditionChange -= OnConditionChange;

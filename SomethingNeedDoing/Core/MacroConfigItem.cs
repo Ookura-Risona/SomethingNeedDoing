@@ -3,7 +3,7 @@ namespace SomethingNeedDoing.Core;
 /// <summary>
 /// Represents a configuration item for a macro.
 /// </summary>
-public class MacroConfigItem
+public class MacroConfigItem : IEquatable<MacroConfigItem>
 {
     /// <summary>
     /// Gets or sets the current value of the config item.
@@ -144,6 +144,42 @@ public class MacroConfigItem
             _ => typeof(string)
         };
     }
+
+    public bool Equals(MacroConfigItem? other)
+    {
+        if (other is null)
+            return false;
+
+        return string.Equals(NormalizeObject(DefaultValue), NormalizeObject(other.DefaultValue), StringComparison.Ordinal) &&
+               Description == other.Description &&
+               Type == other.Type &&
+               string.Equals(NormalizeObject(MinValue), NormalizeObject(other.MinValue), StringComparison.Ordinal) &&
+               string.Equals(NormalizeObject(MaxValue), NormalizeObject(other.MaxValue), StringComparison.Ordinal) &&
+               ValidationPattern == other.ValidationPattern &&
+               ValidationMessage == other.ValidationMessage &&
+               IsChoice == other.IsChoice &&
+               Choices.SequenceEqual(other.Choices);
+    }
+
+    public override bool Equals(object? obj) => obj is MacroConfigItem other && Equals(other);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(NormalizeObject(DefaultValue), StringComparer.Ordinal);
+        hash.Add(Description, StringComparer.Ordinal);
+        hash.Add(Type);
+        hash.Add(NormalizeObject(MinValue), StringComparer.Ordinal);
+        hash.Add(NormalizeObject(MaxValue), StringComparer.Ordinal);
+        hash.Add(ValidationPattern, StringComparer.Ordinal);
+        hash.Add(ValidationMessage, StringComparer.Ordinal);
+        hash.Add(IsChoice);
+        foreach (var choice in Choices)
+            hash.Add(choice, StringComparer.Ordinal);
+        return hash.ToHashCode();
+    }
+
+    private static string NormalizeObject(object? value) => value?.ToString() ?? string.Empty;
 }
 
 /// <summary>
