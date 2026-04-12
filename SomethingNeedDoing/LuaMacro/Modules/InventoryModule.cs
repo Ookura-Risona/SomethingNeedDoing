@@ -228,6 +228,11 @@ public unsafe class InventoryModule : LuaModuleBase
             => InventoryManager.Instance()->MoveItemSlot(Container, (ushort)Slot, destinationContainer, GetFirstEmptySlot(destinationContainer, ArmouryContainer), true);
 
         [LuaDocs]
+        [Changelog("14.12")]
+        public void MoveItemSlotToSlot(InventoryType destinationContainer, int destinationSlot)
+            => InventoryManager.Instance()->MoveItemSlot(Container, (ushort)Slot, destinationContainer, (ushort)destinationSlot, true);
+
+        [LuaDocs]
         [Changelog("13.58")]
         public void LowerQuality() => AgentInventoryContext.Instance()->LowerItemQuality(Item, Container, Slot, 0);
 
