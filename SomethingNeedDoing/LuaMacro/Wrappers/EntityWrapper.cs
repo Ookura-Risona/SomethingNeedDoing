@@ -55,7 +55,7 @@ public unsafe class EntityWrapper : IWrapper
         {
             if (Type != ObjectKind.Pc) return false;
             if (Character->ObjectIndex + 1 > Svc.Objects.Length) return false;
-            return Svc.Objects[Character->ObjectIndex + 1] is { ObjectKind: Dalamud.Game.ClientState.Objects.Enums.ObjectKind.MountType };
+            return Svc.Objects[Character->ObjectIndex + 1] is { ObjectKind: Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Mount };
         }
     }
 
