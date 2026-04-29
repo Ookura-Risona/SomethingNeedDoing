@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using ECommons.ChatMethods;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class ChatExtensions
 {
     public static void PrintMessage(this IChatGui chat, string message)

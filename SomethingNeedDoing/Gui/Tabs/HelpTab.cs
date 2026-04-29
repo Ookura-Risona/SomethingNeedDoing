@@ -1,6 +1,7 @@
 ﻿using ECommons.ImGuiMethods;
 
 namespace SomethingNeedDoing.Gui.Tabs;
+
 public class HelpTab(HelpLuaTab _luaTab, HelpCliTab _cliTab, HelpCommandsTab _commandsTab)
 {
     public void Draw()

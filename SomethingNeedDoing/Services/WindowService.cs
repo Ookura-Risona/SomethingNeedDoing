@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Gui;
 
 namespace SomethingNeedDoing.Services;
+
 public class WindowService : IDisposable
 {
     private readonly WindowSystem _ws;

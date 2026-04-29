@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class WindowFlash
 {
     // From https://github.com/reiichi001/Dalamud-FlashOnTellPlugin/

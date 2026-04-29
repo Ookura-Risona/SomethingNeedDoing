@@ -2,6 +2,7 @@
 using Lumina.Excel.Sheets;
 
 namespace SomethingNeedDoing.LuaMacro.Modules;
+
 public unsafe class QuestsModule : LuaModuleBase
 {
     public override string ModuleName => "Quests";

@@ -4,6 +4,7 @@ using SomethingNeedDoing.LuaMacro;
 using System.Reflection;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class LuaExtensions
 {
     public static object[] LoadEntryPointWrappedScript(this Lua lua, string script) => lua.DoString(string.Format(LuaCodeSnippets.EntrypointTemplate, script));

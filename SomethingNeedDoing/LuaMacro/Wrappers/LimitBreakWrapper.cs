@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class LimitBreakWrapper : IWrapper
 {
     [LuaDocs] public ushort CurrentUnits => UIState.Instance()->LimitBreakController.CurrentUnits;

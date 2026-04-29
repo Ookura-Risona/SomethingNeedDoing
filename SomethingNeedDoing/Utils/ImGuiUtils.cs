@@ -6,6 +6,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using System.Threading.Tasks;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class ImGuiUtils
 {
     public static class Colours
@@ -131,18 +132,15 @@ public static class ImGuiUtils
             ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
 
             using var tooltip = ImRaii.Tooltip();
-            if (tooltip.Success)
-            {
-                var pos = ImGui.GetCursorPos();
-                ImGui.GetWindowDrawList().AddText(
-                    UiBuilder.IconFont, 12,
-                    ImGui.GetWindowPos() + pos + new Vector2(2),
-                    ImGuiColors.DalamudGrey.ToUint(),
-                    FontAwesomeIcon.ExternalLinkAlt.ToIconString()
-                );
-                ImGui.SetCursorPos(pos + new Vector2(20, 0));
-                ImGuiEx.Text(ImGuiColors.DalamudGrey, url);
-            }
+            var pos = ImGui.GetCursorPos();
+            ImGui.GetWindowDrawList().AddText(
+                UiBuilder.IconFont, 12,
+                ImGui.GetWindowPos() + pos + new Vector2(2),
+                ImGuiColors.DalamudGrey.ToUint(),
+                FontAwesomeIcon.ExternalLinkAlt.ToIconString()
+            );
+            ImGui.SetCursorPos(pos + new Vector2(20, 0));
+            ImGuiEx.Text(ImGuiColors.DalamudGrey, url);
         }
 
         if (ImGui.IsItemClicked())

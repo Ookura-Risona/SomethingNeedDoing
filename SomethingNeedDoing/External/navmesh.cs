@@ -3,6 +3,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using System.Threading.Tasks;
 
 namespace SomethingNeedDoing.External;
+
 public class Navmesh : IPC
 {
     public override string Name => "vnavmesh";

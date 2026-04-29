@@ -2,6 +2,7 @@
 using ECommons.ImGuiMethods;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public static class CreateFolderModal
 {
     private static Vector2 Size = new(400, 200);

@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public static class RenameModal
 {
     private static Vector2 Size = new(350, 130);

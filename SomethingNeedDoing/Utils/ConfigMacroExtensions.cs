@@ -3,6 +3,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class ConfigMacroExtensions
 {
     /// <summary>

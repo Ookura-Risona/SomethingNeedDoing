@@ -2,6 +2,7 @@ using ECommons.EzIpcManager;
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.External;
+
 public class AutoDuty : IPC
 {
     public override string Name => "AutoDuty";

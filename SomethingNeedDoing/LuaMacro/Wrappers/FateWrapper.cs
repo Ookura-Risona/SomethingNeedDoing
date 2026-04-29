@@ -3,6 +3,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using static SomethingNeedDoing.LuaMacro.Modules.FateModule;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class FateWrapper(ushort id) : IWrapper
 {
     private FateContext* Fate => FateManager.Instance()->GetFateById(Id);

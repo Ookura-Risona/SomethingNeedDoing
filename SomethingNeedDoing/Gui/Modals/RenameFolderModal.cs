@@ -3,6 +3,7 @@ using Dalamud.Interface.Utility.Raii;
 using ECommons.ImGuiMethods;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public static class RenameFolderModal
 {
     private static Vector2 Size = new(400, 150);

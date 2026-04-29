@@ -1,6 +1,8 @@
 using AutoRetainerAPI;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+using Dalamud.Game.Chat;
+using Dalamud.Game.DutyState;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Hooking;
@@ -63,7 +65,7 @@ public class MacroScheduler : IMacroScheduler, IDisposable
     [Signature("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 4C 8B 74 24 ?? 48 8B D9", DetourName = nameof(OnEmoteFuncDetour))]
     private readonly Hook<OnEmoteFuncDelegate> OnEmoteFuncHook = null!;
 
-    public MacroScheduler(NativeMacroEngine nativeEngine, NLuaMacroEngine luaEngine, TriggerEventManager triggerEventManager, MacroHierarchyManager hierarchyManager, WindowSystem windowSystem, Core.MetadataParser metadataParser, IEnumerable<IDisableable> disableablePlugins)
+    public MacroScheduler(NativeMacroEngine nativeEngine, NLuaMacroEngine luaEngine, TriggerEventManager triggerEventManager, MacroHierarchyManager hierarchyManager, WindowSystem windowSystem, MetadataParser metadataParser, IEnumerable<IDisableable> disableablePlugins)
     {
         Svc.Hook.InitializeFromAttributes(this);
         OnEmoteFuncHook?.Enable();
@@ -969,17 +971,17 @@ public class MacroScheduler : IMacroScheduler, IDisposable
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnConditionChange, eventData);
     }
 
-    private void OnTerritoryChanged(ushort territoryType)
+    private void OnTerritoryChanged(uint territoryType)
     {
         var eventData = new Dictionary<string, object> { { "territoryType", territoryType } };
         FrameworkLogger.Verbose($"[{nameof(OnTerritoryChanged)}] fired [{territoryType}]");
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnTerritoryChange, eventData);
     }
 
-    private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
+    private void OnChatMessage(IHandleableChatMessage message)
     {
-        var eventData = new Dictionary<string, object> { { "type", type }, { "timestamp", timestamp }, { "sender", sender.TextValue }, { "message", message.TextValue }, { "isHandled", isHandled } };
-        FrameworkLogger.Verbose($"[{nameof(OnChatMessage)}] fired [{type}, {timestamp}, {sender}, {message}, {isHandled}]");
+        var eventData = new Dictionary<string, object> { { "type", message.LogKind }, { "timestamp", message.Timestamp }, { "sender", message.Sender.TextValue }, { "message", message.Message.TextValue }, { "isHandled", message.IsHandled } };
+        FrameworkLogger.Verbose($"[{nameof(OnChatMessage)}] fired [{message.LogKind}, {message.Timestamp}, {message.Sender}, {message.Message.TextValue}, {message.IsHandled}]");
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnChatMessage, eventData);
     }
 
@@ -996,21 +998,21 @@ public class MacroScheduler : IMacroScheduler, IDisposable
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnLogout, eventData);
     }
 
-    private void OnDutyStarted(object? sender, ushort e)
+    private void OnDutyStarted(IDutyStateEventArgs args)
     {
-        FrameworkLogger.Verbose($"[{nameof(OnDutyStarted)}] fired [{e}]");
+        FrameworkLogger.Verbose($"[{nameof(OnDutyStarted)}] fired [{args}]");
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnDutyStarted);
     }
 
-    private void OnDutyWiped(object? sender, ushort e)
+    private void OnDutyWiped(IDutyStateEventArgs args)
     {
-        FrameworkLogger.Verbose($"[{nameof(OnDutyWiped)}] fired [{e}]");
+        FrameworkLogger.Verbose($"[{nameof(OnDutyWiped)}] fired [{args}]");
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnDutyWiped);
     }
 
-    private void OnDutyCompleted(object? sender, ushort e)
+    private void OnDutyCompleted(IDutyStateEventArgs args)
     {
-        FrameworkLogger.Verbose($"[{nameof(OnDutyCompleted)}] fired [{e}]");
+        FrameworkLogger.Verbose($"[{nameof(OnDutyCompleted)}] fired [{args}]");
         _ = _triggerEventManager.RaiseTriggerEvent(TriggerEvent.OnDutyCompleted);
     }
 

@@ -3,6 +3,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using System.Threading.Tasks;
 
 namespace SomethingNeedDoing.External;
+
 public class TextAdvance : IPC, IDisableable
 {
     public override string Name => "TextAdvance";

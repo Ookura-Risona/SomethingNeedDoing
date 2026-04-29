@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.External;
+
 public class Wrath : IPC
 {
     public override string Name => "WrathCombo";

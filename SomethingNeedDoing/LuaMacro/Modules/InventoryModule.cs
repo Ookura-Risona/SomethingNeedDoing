@@ -5,9 +5,9 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using NLua;
 using SomethingNeedDoing.Core.Interfaces;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace SomethingNeedDoing.LuaMacro.Modules;
+
 public unsafe class InventoryModule : LuaModuleBase
 {
     public override string ModuleName => "Inventory";
@@ -214,8 +214,8 @@ public unsafe class InventoryModule : LuaModuleBase
             AgentSalvage.Instance()->SalvageItem(Item);
             var retval = new AtkValue();
             Span<AtkValue> param = [
-                new AtkValue { Type = ValueType.Int, Int = 0 },
-                new AtkValue { Type = ValueType.Bool, Byte = 1 }
+                new AtkValue { Type = AtkValueType.Int, Int = 0 },
+                new AtkValue { Type = AtkValueType.Bool, Byte = 1 }
             ];
             AgentSalvage.Instance()->AgentInterface.ReceiveEvent(&retval, param.GetPointer(0), 2, 1);
         }

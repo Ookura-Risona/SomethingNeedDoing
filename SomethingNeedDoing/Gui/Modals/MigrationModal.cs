@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.IO;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public static class MigrationModal
 {
     private static Vector2 Size = new(800, 0);

@@ -1,4 +1,5 @@
 ﻿namespace SomethingNeedDoing.LuaMacro.Modules;
+
 public class DalamudModule : LuaModuleBase
 {
     public override string ModuleName => "Dalamud";

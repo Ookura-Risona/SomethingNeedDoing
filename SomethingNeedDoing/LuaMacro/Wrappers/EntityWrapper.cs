@@ -6,6 +6,7 @@ using Lumina.Excel.Sheets;
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class EntityWrapper : IWrapper
 {
     public EntityWrapper(GameObject* obj) => _obj = obj;

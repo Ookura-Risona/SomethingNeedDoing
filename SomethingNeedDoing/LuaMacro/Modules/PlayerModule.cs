@@ -7,6 +7,7 @@ using static FFXIVClientStructs.FFXIV.Client.Game.UI.PlayerState;
 using static SomethingNeedDoing.LuaMacro.Modules.InventoryModule;
 
 namespace SomethingNeedDoing.LuaMacro.Modules;
+
 public unsafe class PlayerModule : LuaModuleBase
 {
     public override string ModuleName => "Player";
@@ -14,9 +15,9 @@ public unsafe class PlayerModule : LuaModuleBase
     private PlayerState* Ps => Instance();
 
     [LuaFunction] public byte GrandCompany => Ps->GrandCompany;
-    [LuaFunction] public byte GCRankMaelstrom { get => Ps->GCRankMaelstrom; set => Ps->GCRankMaelstrom = value; }
-    [LuaFunction] public byte GCRankImmortalFlames { get => Ps->GCRankImmortalFlames; set => Ps->GCRankImmortalFlames = value; }
-    [LuaFunction] public byte GCRankTwinAdders { get => Ps->GCRankTwinAdders; set => Ps->GCRankTwinAdders = value; }
+    [LuaFunction] public byte GCRankMaelstrom { get => Ps->GCRanks[0]; set => Ps->GCRanks[0] = value; }
+    [LuaFunction] public byte GCRankImmortalFlames { get => Ps->GCRanks[2]; set => Ps->GCRanks[2] = value; }
+    [LuaFunction] public byte GCRankTwinAdders { get => Ps->GCRanks[1]; set => Ps->GCRanks[1] = value; }
 
     [LuaFunction] public uint FishingBait => Ps->FishingBait;
 
