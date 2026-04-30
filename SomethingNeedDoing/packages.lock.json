@@ -22,9 +22,9 @@
       },
       "ImGuiColorTextEditNetDalamud": {
         "type": "Direct",
-        "requested": "[1.1.0, )",
-        "resolved": "1.1.0",
-        "contentHash": "EEuXtbYfcdx88MSC5I6NR+ye6zCPiYXQHF0q9m3bayawhObb3waXvqE8RneerTgenMbfbjjTbTznlS2h3K+pDQ=="
+        "requested": "[1.2.0, )",
+        "resolved": "1.2.0",
+        "contentHash": "JEyCKVXBmlN9HM3DohNmlMPj0TxmkojGQy8zDhyzDhH9mRrAGnFL5Bv/41l1sPAvdQvN8N6x2A5/dpXOcmTOqg=="
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Direct",

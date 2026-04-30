@@ -1,5 +1,7 @@
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Text;
+using Newtonsoft.Json;
+using SomethingNeedDoing;
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.Core;
@@ -73,6 +75,7 @@ public class MacroMetadata : IEquatable<MacroMetadata>
     /// <summary>
     /// Gets or sets the macro dependencies.
     /// </summary>
+    [JsonProperty(ItemConverterType = typeof(ConfigFactory.IMacroDependencyConverter))]
     public List<IMacroDependency> Dependencies { get; set; } = [];
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.Text;
+using Dalamud.Game.Text;
 using ECommons.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -299,16 +299,7 @@ public class ConfigFactory : DefaultSerializationFactory, ISerializationFactory
     public new string DefaultConfigFileName => "ezSomethingNeedDoing.json";
 
     public new T? Deserialize<T>(string inputData)
-    {
-        try
-        {
-            return JsonConvert.DeserializeObject<T>(inputData, JsonSerializerSettings);
-        }
-        catch
-        {
-            return JsonConvert.DeserializeObject<T>(inputData);
-        }
-    }
+        => JsonConvert.DeserializeObject<T>(inputData, JsonSerializerSettings);
 
     public new string? Serialize(object data, bool pretty = false)
         => JsonConvert.SerializeObject(data, JsonSerializerSettings);
@@ -360,8 +351,23 @@ public class ConfigFactory : DefaultSerializationFactory, ISerializationFactory
                 _ => throw new JsonException($"Unknown source type [{source}]. Please report to the author."),
             };
 
+            jObject.Remove("$type");
+
             using var newReader = jObject.CreateReader();
-            return serializer.Deserialize(newReader, concreteType)!;
+            var inner = JsonSerializer.Create(new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.None,
+                ContractResolver = serializer.ContractResolver,
+                SerializationBinder = serializer.SerializationBinder,
+                NullValueHandling = serializer.NullValueHandling,
+                DefaultValueHandling = serializer.DefaultValueHandling,
+                DateParseHandling = serializer.DateParseHandling,
+                DateTimeZoneHandling = serializer.DateTimeZoneHandling,
+                FloatParseHandling = serializer.FloatParseHandling,
+                Culture = serializer.Culture,
+                MaxDepth = serializer.MaxDepth,
+            });
+            return inner.Deserialize(newReader, concreteType)!;
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => serializer.Serialize(writer, value);
