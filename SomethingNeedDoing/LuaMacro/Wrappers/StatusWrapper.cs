@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class StatusWrapper(Status status) : IWrapper
 {
     [LuaDocs][Changelog("12.22")] public ushort StatusId => status.StatusId;

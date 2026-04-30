@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Text;
 using SomethingNeedDoing.Core.Interfaces;
 
@@ -6,7 +6,7 @@ namespace SomethingNeedDoing.Core;
 /// <summary>
 /// Represents metadata for a macro.
 /// </summary>
-public class MacroMetadata
+public class MacroMetadata : IEquatable<MacroMetadata>
 {
     /// <summary>
     /// Gets or sets any <see cref="TriggerEvent"/> that determine when a macro can automatically be triggered.
@@ -85,12 +85,90 @@ public class MacroMetadata
     /// Key is the function name (e.g., "OnChatMessage"), value is the filter configuration.
     /// </summary>
     public Dictionary<string, ChatMessageFilterConfig> FunctionChatFilters { get; set; } = [];
+
+    public bool Equals(MacroMetadata? other)
+    {
+        if (other is null)
+            return false;
+
+        return Author == other.Author &&
+               Version == other.Version &&
+               Description == other.Description &&
+               CraftingLoop == other.CraftingLoop &&
+               CraftLoopCount == other.CraftLoopCount &&
+               TriggerEvents.SequenceEqual(other.TriggerEvents) &&
+               PluginDependecies.SequenceEqual(other.PluginDependecies) &&
+               PluginsToDisable.SequenceEqual(other.PluginsToDisable) &&
+               ConfigsEqual(Configs, other.Configs) &&
+               Equals(ChatMessageFilter, other.ChatMessageFilter) &&
+               FunctionChatFiltersEqual(FunctionChatFilters, other.FunctionChatFilters) &&
+               Equals(AddonEventConfig, other.AddonEventConfig);
+    }
+
+    public override bool Equals(object? obj) => obj is MacroMetadata other && Equals(other);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Author, StringComparer.Ordinal);
+        hash.Add(Version, StringComparer.Ordinal);
+        hash.Add(Description, StringComparer.Ordinal);
+        hash.Add(CraftingLoop);
+        hash.Add(CraftLoopCount);
+        foreach (var trigger in TriggerEvents)
+            hash.Add(trigger);
+        foreach (var dep in PluginDependecies)
+            hash.Add(dep, StringComparer.Ordinal);
+        foreach (var plugin in PluginsToDisable)
+            hash.Add(plugin, StringComparer.Ordinal);
+        foreach (var cfg in Configs.OrderBy(k => k.Key, StringComparer.Ordinal))
+        {
+            hash.Add(cfg.Key, StringComparer.Ordinal);
+            hash.Add(cfg.Value);
+        }
+        hash.Add(ChatMessageFilter);
+        foreach (var filter in FunctionChatFilters.OrderBy(k => k.Key, StringComparer.Ordinal))
+        {
+            hash.Add(filter.Key, StringComparer.Ordinal);
+            hash.Add(filter.Value);
+        }
+        hash.Add(AddonEventConfig);
+        return hash.ToHashCode();
+    }
+
+    private static bool ConfigsEqual(Dictionary<string, MacroConfigItem> a, Dictionary<string, MacroConfigItem> b)
+    {
+        if (a.Count != b.Count)
+            return false;
+
+        foreach (var kvp in a)
+        {
+            if (!b.TryGetValue(kvp.Key, out var other) || !Equals(kvp.Value, other))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool FunctionChatFiltersEqual(Dictionary<string, ChatMessageFilterConfig> a, Dictionary<string, ChatMessageFilterConfig> b)
+    {
+        if (a.Count != b.Count)
+            return false;
+
+        foreach (var kvp in a)
+        {
+            if (!b.TryGetValue(kvp.Key, out var other) || !Equals(kvp.Value, other))
+                return false;
+        }
+
+        return true;
+    }
 }
 
 /// <summary>
 /// Configuration for addon event triggers.
 /// </summary>
-public class AddonEventConfig
+public class AddonEventConfig : IEquatable<AddonEventConfig>
 {
     /// <summary>
     /// Gets or sets the name of the addon to monitor.
@@ -101,12 +179,19 @@ public class AddonEventConfig
     /// Gets or sets the type of addon event to monitor.
     /// </summary>
     public AddonEvent EventType { get; set; } = AddonEvent.PostSetup;
+
+    public bool Equals(AddonEventConfig? other)
+        => other is not null && AddonName == other.AddonName && EventType == other.EventType;
+
+    public override bool Equals(object? obj) => obj is AddonEventConfig other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(AddonName, EventType);
 }
 
 /// <summary>
 /// Configuration for filtering chat messages.
 /// </summary>
-public class ChatMessageFilterConfig
+public class ChatMessageFilterConfig : IEquatable<ChatMessageFilterConfig>
 {
     /// <summary>
     /// Gets or sets the chat channels to filter by. If null or empty, all channels are allowed.
@@ -127,4 +212,31 @@ public class ChatMessageFilterConfig
     /// Gets or sets a regex pattern that the message must match. If null or empty, no regex filter is applied.
     /// </summary>
     public string? MessageRegex { get; set; }
+
+    public bool Equals(ChatMessageFilterConfig? other)
+    {
+        if (other is null)
+            return false;
+
+        var channels = Channels?.OrderBy(c => c).ToList() ?? [];
+        var otherChannels = other.Channels?.OrderBy(c => c).ToList() ?? [];
+
+        return channels.SequenceEqual(otherChannels) &&
+               MessageContains == other.MessageContains &&
+               SenderContains == other.SenderContains &&
+               MessageRegex == other.MessageRegex;
+    }
+
+    public override bool Equals(object? obj) => obj is ChatMessageFilterConfig other && Equals(other);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (var channel in (Channels ?? []).OrderBy(c => c))
+            hash.Add(channel);
+        hash.Add(MessageContains, StringComparer.Ordinal);
+        hash.Add(SenderContains, StringComparer.Ordinal);
+        hash.Add(MessageRegex, StringComparer.Ordinal);
+        return hash.ToHashCode();
+    }
 }

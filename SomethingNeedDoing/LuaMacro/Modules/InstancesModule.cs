@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Aetherytes;
+using FFXIVClientStructs.FFXIV.Client.Enums;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
@@ -8,6 +9,7 @@ using SomethingNeedDoing.LuaMacro.Wrappers;
 using static FFXIVClientStructs.FFXIV.Client.UI.Info.InfoProxyCommonList.CharacterData;
 
 namespace SomethingNeedDoing.LuaMacro.Modules;
+
 public unsafe class InstancesModule : LuaModuleBase
 {
     public override string ModuleName => "Instances";
@@ -28,7 +30,7 @@ public unsafe class InstancesModule : LuaModuleBase
                 return;
             }
             var QueueInfo = ContentsFinder.Instance()->GetQueueInfo();
-            if (QueueInfo->QueueState is ContentsFinderQueueInfo.QueueStates.Pending or ContentsFinderQueueInfo.QueueStates.Queued) QueueInfo->CancelQueue();
+            if (QueueInfo->QueueState is ContentsFinderQueueState.Pending or ContentsFinderQueueState.Queued) QueueInfo->CancelQueue();
             QueueInfo->QueueDuties(&contentsFinderCondition, 1);
         }
 
@@ -42,7 +44,7 @@ public unsafe class InstancesModule : LuaModuleBase
                 return;
             }
             var QueueInfo = ContentsFinder.Instance()->GetQueueInfo();
-            if (QueueInfo->QueueState is ContentsFinderQueueInfo.QueueStates.Pending or ContentsFinderQueueInfo.QueueStates.Queued) QueueInfo->CancelQueue();
+            if (QueueInfo->QueueState is ContentsFinderQueueState.Pending or ContentsFinderQueueState.Queued) QueueInfo->CancelQueue();
             QueueInfo->QueueRoulette(contentRouletteId);
         }
 
@@ -56,7 +58,7 @@ public unsafe class InstancesModule : LuaModuleBase
         [LuaDocs] public bool IsSilenceEcho { get => ContentsFinder.Instance()->IsSilenceEcho; set => ContentsFinder.Instance()->IsSilenceEcho = value; }
         [LuaDocs] public bool IsExplorerMode { get => ContentsFinder.Instance()->IsExplorerMode; set => ContentsFinder.Instance()->IsExplorerMode = value; }
         [LuaDocs] public bool IsLimitedLevelingRoulette { get => ContentsFinder.Instance()->IsLimitedLevelingRoulette; set => ContentsFinder.Instance()->IsLimitedLevelingRoulette = value; }
-        [LuaDocs] public ContentsFinderQueueInfo.QueueStates QueueState => ContentsFinder.Instance()->GetQueueInfo()->QueueState;
+        [LuaDocs] public ContentsFinderQueueState QueueState => ContentsFinder.Instance()->GetQueueInfo()->QueueState;
     }
 
     [LuaFunction] public FriendsListWrapper FriendsList => new();

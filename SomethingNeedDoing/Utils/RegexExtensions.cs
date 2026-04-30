@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class RegexExtensions
 {
     public static string ExtractAndUnquote(this Match match, string groupName)

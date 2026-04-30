@@ -4,6 +4,7 @@ using Dalamud.Interface.Utility.Raii;
 using SomethingNeedDoing.Services;
 
 namespace SomethingNeedDoing.Gui.Tabs;
+
 public class HelpCliTab(CommandService cmds)
 {
     public void DrawTab()

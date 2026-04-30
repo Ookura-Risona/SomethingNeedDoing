@@ -8,6 +8,7 @@ using SomethingNeedDoing.LuaMacro;
 using System.Reflection;
 
 namespace SomethingNeedDoing.Gui.Tabs;
+
 public class HelpLuaTab(LuaDocumentation luaDocs)
 {
     public void DrawTab()

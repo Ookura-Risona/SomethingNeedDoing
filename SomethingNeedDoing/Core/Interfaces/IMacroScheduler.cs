@@ -1,4 +1,5 @@
-﻿using SomethingNeedDoing.Core.Events;
+using SomethingNeedDoing.Core;
+using SomethingNeedDoing.Core.Events;
 using System.Threading.Tasks;
 
 namespace SomethingNeedDoing.Core.Interfaces;
@@ -130,4 +131,13 @@ public interface IMacroScheduler
     /// </summary>
     /// <param name="macroId">The ID of the macro to invalidate cache for.</param>
     void InvalidateFunctionCache(string macroId);
+
+    /// <summary>
+    /// Re-parses metadata from <see cref="IMacro.Content"/> into <see cref="IMacro.Metadata"/> and
+    /// re-subscribes macro-level trigger handlers (chat filters, addon event config, etc.).
+    /// When the macro is running, optionally re-registers function-level triggers so their filters stay in sync.
+    /// </summary>
+    /// <param name="macro">The macro whose content already reflects the desired script.</param>
+    /// <param name="refreshFunctionTriggersIfRunning">If true and the macro is running, refreshes function-level trigger registrations.</param>
+    void RefreshTriggersFromContent(ConfigMacro macro, bool refreshFunctionTriggersIfRunning = true);
 }

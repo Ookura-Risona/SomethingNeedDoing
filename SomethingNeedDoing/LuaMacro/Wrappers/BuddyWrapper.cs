@@ -2,6 +2,7 @@
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class BuddyWrapper : IWrapper
 {
     [LuaDocs][Changelog("12.22")] public List<BuddyMemberWrapper> BuddyMember => [.. UIState.Instance()->Buddy.BattleBuddies.ToArray().Select(b => new BuddyMemberWrapper(b))];
@@ -29,9 +30,9 @@ public unsafe class CompanionInfoWrapper : IWrapper
     [LuaDocs][Changelog("12.22")] public byte Rank => UIState.Instance()->Buddy.CompanionInfo.Rank;
     [LuaDocs][Changelog("12.22")] public byte Stars => UIState.Instance()->Buddy.CompanionInfo.Stars;
     [LuaDocs][Changelog("12.22")] public byte SkillPoints => UIState.Instance()->Buddy.CompanionInfo.SkillPoints;
-    [LuaDocs][Changelog("12.22")] public byte DefenderLevel => UIState.Instance()->Buddy.CompanionInfo.DefenderLevel;
-    [LuaDocs][Changelog("12.22")] public byte AttackerLevel => UIState.Instance()->Buddy.CompanionInfo.AttackerLevel;
-    [LuaDocs][Changelog("12.22")] public byte HealerLevel => UIState.Instance()->Buddy.CompanionInfo.HealerLevel;
+    [LuaDocs][Changelog("12.22")] public byte DefenderLevel => UIState.Instance()->Buddy.CompanionInfo.Levels[0];
+    [LuaDocs][Changelog("12.22")] public byte AttackerLevel => UIState.Instance()->Buddy.CompanionInfo.Levels[1];
+    [LuaDocs][Changelog("12.22")] public byte HealerLevel => UIState.Instance()->Buddy.CompanionInfo.Levels[2];
     [LuaDocs][Changelog("12.22")] public byte ActiveCommand => UIState.Instance()->Buddy.CompanionInfo.ActiveCommand;
     [LuaDocs][Changelog("12.22")] public byte FavoriteFeed => UIState.Instance()->Buddy.CompanionInfo.FavoriteFeed;
     [LuaDocs][Changelog("12.22")] public byte CurrentColorStainId => UIState.Instance()->Buddy.CompanionInfo.CurrentColorStainId;

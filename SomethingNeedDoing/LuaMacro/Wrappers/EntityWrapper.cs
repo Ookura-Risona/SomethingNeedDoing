@@ -6,6 +6,7 @@ using Lumina.Excel.Sheets;
 using SomethingNeedDoing.Core.Interfaces;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public unsafe class EntityWrapper : IWrapper
 {
     public EntityWrapper(GameObject* obj) => _obj = obj;
@@ -41,6 +42,7 @@ public unsafe class EntityWrapper : IWrapper
 
     [LuaDocs] public EntityWrapper? Target => DalamudObj?.TargetObject is { } target ? new(target) : null;
     [LuaDocs] public bool IsCasting => GetCharacterValue(() => Character->IsCasting);
+    [LuaDocs] public bool IsTargetable => _obj->GetIsTargetable();
     [LuaDocs] public bool IsCastInterruptible => GetCharacterValue(() => Character->GetCastInfo()->Interruptible);
     [LuaDocs] public bool IsInCombat => GetCharacterValue(() => Character->InCombat);
     [LuaDocs] public byte HuntRank => FindRow<NotoriousMonster>(x => x.BNpcBase.Value!.RowId == _obj->BaseId)?.Rank ?? 0;
@@ -53,7 +55,7 @@ public unsafe class EntityWrapper : IWrapper
         {
             if (Type != ObjectKind.Pc) return false;
             if (Character->ObjectIndex + 1 > Svc.Objects.Length) return false;
-            return Svc.Objects[Character->ObjectIndex + 1] is { ObjectKind: Dalamud.Game.ClientState.Objects.Enums.ObjectKind.MountType };
+            return Svc.Objects[Character->ObjectIndex + 1] is { ObjectKind: Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Mount };
         }
     }
 

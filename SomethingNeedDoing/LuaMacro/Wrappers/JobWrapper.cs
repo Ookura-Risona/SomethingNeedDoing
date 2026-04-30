@@ -4,6 +4,7 @@ using SomethingNeedDoing.Core.Interfaces;
 using Role = SomethingNeedDoing.Utils.ClassJobExtensions.Role;
 
 namespace SomethingNeedDoing.LuaMacro.Wrappers;
+
 public class JobWrapper(uint classJobId) : IWrapper
 {
     private ClassJob Row => GetRow<ClassJob>(Id) ?? throw new Exception($"ClassJob #{Id} not found");

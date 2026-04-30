@@ -4,6 +4,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using System.Reflection;
 
 namespace SomethingNeedDoing.Gui.Tabs;
+
 public static class HelpClicksTab
 {
     public static void DrawTab()

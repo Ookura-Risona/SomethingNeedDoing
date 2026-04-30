@@ -4,6 +4,7 @@ using ECommons.ImGuiMethods;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public static class FirstTimeWarningModal
 {
     private static Vector2 Size = new(600, 600);

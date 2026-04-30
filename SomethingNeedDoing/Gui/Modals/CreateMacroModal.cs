@@ -4,6 +4,7 @@ using SomethingNeedDoing.Managers;
 using System.Threading.Tasks;
 
 namespace SomethingNeedDoing.Gui.Modals;
+
 public class CreateMacroModal(GitMacroManager gitManager)
 {
     private static Vector2 Size = new(400, 250);

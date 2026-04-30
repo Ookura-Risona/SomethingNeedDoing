@@ -1,4 +1,5 @@
 ﻿namespace SomethingNeedDoing.LuaMacro;
+
 public static class LuaCodeSnippets
 {
     public const string EntrypointTemplate = @"

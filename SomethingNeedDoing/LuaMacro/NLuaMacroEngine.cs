@@ -1,4 +1,4 @@
-﻿using NLua;
+using NLua;
 using SomethingNeedDoing.Core.Events;
 using SomethingNeedDoing.Core.Interfaces;
 using SomethingNeedDoing.LuaMacro.Modules;
@@ -76,7 +76,7 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
         }
         catch (Exception ex)
         {
-            OnMacroError(macro.Id, "Macro execution failed", ex);
+            OnMacroError(macro, "Macro execution failed", ex);
             throw;
         }
     }
@@ -89,7 +89,7 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
         Lua? lua = null;
         try
         {
-            FrameworkLogger.Debug($"Starting Lua macro execution for macro {macro.Macro.Id}");
+            FrameworkLogger.Verbose($"Starting Lua macro execution for macro {macro.Macro.Id}");
             lua = new Lua();
             lua.State.Encoding = Encoding.UTF8;
 
@@ -185,13 +185,13 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
                         }
                         catch (LuaException ex)
                         {
-                            OnMacroError(macro.Macro.Id, $"Error executing Lua function for macro {macro.Macro.Id}", ex);
+                            OnMacroError(macro.Macro, $"Error executing Lua function for macro {macro.Macro.Id}", ex);
                             break;
                         }
                         catch (Exception ex)
                         {
                             var errorDetails = "Unknown error";
-                            OnMacroError(macro.Macro.Id, $"Error executing Lua function for macro {macro.Macro.Id}: {errorDetails}", ex);
+                            OnMacroError(macro.Macro, $"Error executing Lua function for macro {macro.Macro.Id}: {errorDetails}", ex);
                             break;
                         }
                     }
@@ -202,7 +202,7 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
                 }
                 catch (Exception ex)
                 {
-                    OnMacroError(macro.Macro.Id, "Error executing macro", ex);
+                    OnMacroError(macro.Macro, "Error executing macro", ex);
                 }
                 finally
                 {
@@ -216,7 +216,7 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
         }
         catch (Exception ex)
         {
-            OnMacroError(macro.Macro.Id, "Error executing macro", ex);
+            OnMacroError(macro.Macro, "Error executing macro", ex);
             throw;
         }
         finally
@@ -240,11 +240,11 @@ public class NLuaMacroEngine(LuaModuleManager moduleManager, CleanupManager clea
         }
     }
 
-    protected virtual void OnMacroError(string macroId, string message, Exception? ex = null)
+    protected virtual void OnMacroError(IMacro macro, string message, Exception? ex = null)
     {
         Svc.Chat.PrintErrorMsg(message);
-        FrameworkLogger.Error($"Error executing macro {macroId}: {ex}");
-        MacroError?.Invoke(this, new MacroErrorEventArgs(macroId, message, ex));
+        FrameworkLogger.Error($"Error executing macro {macro.Name} [{macro.Id}]: {ex}");
+        MacroError?.Invoke(this, new MacroErrorEventArgs(macro.Id, message, ex));
     }
 
     /// <summary>

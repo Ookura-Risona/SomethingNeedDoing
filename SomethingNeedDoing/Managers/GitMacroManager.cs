@@ -1,4 +1,4 @@
-﻿using SomethingNeedDoing.Core.Events;
+using SomethingNeedDoing.Core.Events;
 using SomethingNeedDoing.Core.Interfaces;
 using System.Net.Http;
 using System.Text.Json;
@@ -12,7 +12,6 @@ namespace SomethingNeedDoing.Managers;
 public class GitMacroManager : IDisposable
 {
     private readonly IMacroScheduler _scheduler;
-    private readonly MetadataParser _metadataParser;
     private readonly HttpClient _httpClient = new()
     {
         DefaultRequestHeaders =
@@ -37,11 +36,9 @@ public class GitMacroManager : IDisposable
     /// </summary>
     /// <param name="scheduler">The macro scheduler.</param>
     /// <param name="gitService">The git service.</param>
-    /// <param name="metadataParser">The metadata parser.</param>
-    public GitMacroManager(IMacroScheduler scheduler, IGitService gitService, MetadataParser metadataParser)
+    public GitMacroManager(IMacroScheduler scheduler, IGitService gitService)
     {
         _scheduler = scheduler;
-        _metadataParser = metadataParser;
         _ = UpdateAllMacros();
 
         // TODO: This is like this because having a parametered construct meant that IMacroDependencies couldn't be deserialized by the json deserializer
@@ -425,22 +422,15 @@ public class GitMacroManager : IDisposable
 
         var fileContent = await fileResponse.Content.ReadAsStringAsync();
 
-        // Store current trigger events, unsubscribe, update, and resubscribe
-        var currentTriggers = macro.Metadata.TriggerEvents.ToList();
         _scheduler.StopMacro(macro.Id);
-        currentTriggers.ForEach(t => _scheduler.UnsubscribeFromTriggerEvent(macro, t));
 
-        // Update the macro
         macro.Content = fileContent;
         macro.GitInfo.CommitHash = commitHash;
         macro.GitInfo.HasUpdate = false;
         macro.GitInfo.LastUpdateCheck = DateTime.Now;
-        macro.Metadata = _metadataParser.ParseMetadata(fileContent, macro.Metadata);
+        _scheduler.RefreshTriggersFromContent(macro, refreshFunctionTriggersIfRunning: false);
 
-        // Update dependencies
         await UpdateDependencies(macro);
-
-        currentTriggers.ForEach(t => _scheduler.SubscribeToTriggerEvent(macro, t));
 
         C.Save();
         FrameworkLogger.Info($"Successfully updated macro {macro.Name} to commit {commitHash}");

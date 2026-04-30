@@ -1,4 +1,5 @@
 ﻿namespace SomethingNeedDoing.Utils;
+
 public static class StringExtensions
 {
     /// <summary>

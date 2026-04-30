@@ -1,6 +1,7 @@
 ﻿using Lumina.Excel.Sheets;
 
 namespace SomethingNeedDoing.Utils;
+
 public static class ClassJobExtensions
 {
     // from XIVDeck

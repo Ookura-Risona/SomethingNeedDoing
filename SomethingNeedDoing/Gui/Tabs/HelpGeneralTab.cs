@@ -4,6 +4,7 @@ using ECommons.ImGuiMethods;
 using SomethingNeedDoing.Managers;
 
 namespace SomethingNeedDoing.Gui.Tabs;
+
 public static class HelpGeneralTab
 {
     public static void DrawTab()
