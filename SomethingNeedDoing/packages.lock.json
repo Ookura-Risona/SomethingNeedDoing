@@ -20,12 +20,6 @@
         "resolved": "3.2.0.2",
         "contentHash": "inrqsG7HOuF4UC9jXYPdy1HEIjQqSAbOogyN6xcXvbLXCsjy3VRqQVR5PrLAoxt+GlSVu+qpsdo9KyUI/yPFIA=="
       },
-      "ImGuiColorTextEditNetDalamud": {
-        "type": "Direct",
-        "requested": "[1.1.0, )",
-        "resolved": "1.1.0",
-        "contentHash": "EEuXtbYfcdx88MSC5I6NR+ye6zCPiYXQHF0q9m3bayawhObb3waXvqE8RneerTgenMbfbjjTbTznlS2h3K+pDQ=="
-      },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Direct",
         "requested": "[9.0.8, )",
@@ -80,6 +74,9 @@
         "dependencies": {
           "ECommons": "[3.1.0.1, )"
         }
+      },
+      "ImGuiColorTextEditNetDalamud": {
+        "type": "Project"
       }
     }
   }
